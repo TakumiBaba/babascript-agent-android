@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -46,6 +48,7 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
     private Context mContext;
     public Boolean isLogined = false;
     private AgentApplication application;
+    private WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +65,15 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         application = (AgentApplication)getApplication();
         application.setActivity(this);
         application.login();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
 
         if(isLogined == false){
             setLoginView();
         }
+        webView = (WebView)findViewById(R.id.webView);
+        webView.getSettings().setJavaScriptEnabled(true);
+        
+
     }
 
     public void onEvent(JSONObject object){
