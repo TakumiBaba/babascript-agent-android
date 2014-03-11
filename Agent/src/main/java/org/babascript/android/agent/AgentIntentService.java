@@ -67,6 +67,5 @@ public class AgentIntentService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         manager.notify(0, mBuilder.build());
-
     }
 }

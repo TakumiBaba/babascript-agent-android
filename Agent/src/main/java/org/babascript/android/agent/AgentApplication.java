@@ -34,6 +34,7 @@ public class AgentApplication extends Application {
     private Context mContext;
     private JSONObject mTask;
     private static String appName = "babascript";
+    public static String API = "http://133.27.246.111:3000/api";
 
     @Override
     public void onCreate(){
@@ -61,7 +62,9 @@ public class AgentApplication extends Application {
         RequestQueue mQueue = Volley.newRequestQueue(mContext);
         JSONObject params = new JSONObject();
         JSONObject tuple = new JSONObject();
+        String name = "";
         try {
+            name =  mTask.getString("name");
             params.put("baba", "script");
             params.put("value", value);
             params.put("type", "return");
@@ -70,7 +73,7 @@ public class AgentApplication extends Application {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mQueue.add(new JsonObjectRequest(Request.Method.POST, "http://linda.babascript.org/masuilab/", tuple
+        mQueue.add(new JsonObjectRequest(Request.Method.POST, API+"/linda/"+name, tuple
                 , new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -111,12 +114,12 @@ public class AgentApplication extends Application {
                     params.put("id", id);
                     params.put("pass", pass);
                     params.put("deviceId", uuid);
-                    params.put("type", "GCM");
+                    params.put("deviceType", "GCM");
                     params.put("token", token);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                mQueue.add(new JsonObjectRequest(Request.Method.POST, "http://192.168.2.107:3000/api/device/login", params, new Response.Listener<JSONObject>() {
+                mQueue.add(new JsonObjectRequest(Request.Method.POST, API+"/device/login", params, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Boolean isSuccess = false;
@@ -159,7 +162,8 @@ public class AgentApplication extends Application {
                 String registrationId = "";
                 try{
                     GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(mContext);
-                    registrationId = gcm.register("170405382963");
+                    registrationId = gcm.register(String.valueOf(R.string.project_id));
+//                    registrationId = gcm.register("170405382963");
 
                     pref.edit().putString("token", registrationId).commit();
                 } catch (IOException e) {

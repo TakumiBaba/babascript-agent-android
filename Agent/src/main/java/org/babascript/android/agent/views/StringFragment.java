@@ -54,6 +54,7 @@ public class StringFragment extends Fragment implements View.OnClickListener {
         fragment.setArguments(args);
         return fragment;
     }
+
     public StringFragment() {
         // Required empty public constructor
     }
