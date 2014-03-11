@@ -35,6 +35,9 @@ public class AgentApplication extends Application {
     private JSONObject mTask;
     private static String appName = "babascript";
     public static String API = "http://133.27.246.111:3000/api";
+    public boolean isLogin = false;
+    public boolean isForeground = false;
+    public boolean isRunning = false;
 
     @Override
     public void onCreate(){
@@ -101,9 +104,9 @@ public class AgentApplication extends Application {
         RequestQueue mQueue = Volley.newRequestQueue(mContext);
         JSONObject params = new JSONObject();
         if (id.equals("") || pass.equals("")){
+            isLogin = false;
             mActivity.isLogined = false;
         }else{
-            mActivity.isLogined = true;
             if(uuid.equals("")){
                 uuid = UUID.randomUUID().toString();
                 pref.edit().putString("uuid", uuid).commit();
@@ -133,8 +136,11 @@ public class AgentApplication extends Application {
                             e.printStackTrace();
                         }
                         if(isSuccess == true){
+                            isLogin = true;
                             getSharedPreferences(appName, Activity.MODE_PRIVATE).edit().putString("id", id).putString("pass", pass).commit();
-                            mActivity.setNormalView();
+                            mActivity.setNormalView(id);
+                        }else{
+                            mActivity.setLoginView();
                         }
                         Log.d("login", response.toString());
                     }
@@ -142,6 +148,7 @@ public class AgentApplication extends Application {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
+                        mActivity.setLoginView();
                     }
                 }));
             }
@@ -162,8 +169,11 @@ public class AgentApplication extends Application {
                 String registrationId = "";
                 try{
                     GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(mContext);
-                    registrationId = gcm.register(String.valueOf(R.string.project_id));
-//                    registrationId = gcm.register("170405382963");
+//                    String num = String.valueOf(R.string.project_id);
+//                    Log.d("registration test", num);
+//                    registrationId = gcm.register(String.valueOf(num));
+//                    registrationId = gcm.register(String.valueOf(R.string.project_id));
+                    registrationId = gcm.register("170405382963");
 
                     pref.edit().putString("token", registrationId).commit();
                 } catch (IOException e) {

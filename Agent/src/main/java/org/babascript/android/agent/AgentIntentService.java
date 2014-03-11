@@ -36,17 +36,19 @@ public class AgentIntentService extends IntentService {
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         String type = gcm.getMessageType(intent);
-
+        AgentApplication agentApp = (AgentApplication)this.getApplication();
+        if(agentApp.isForeground) return;
         if(!extras.isEmpty()){
             if(GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(type)){
-                JSONObject tuple = null;
-                try {
-                    tuple = new JSONObject(extras.getString("default"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                AgentApplication agentApp = (AgentApplication)this.getApplication();
-                agentApp.addTask(tuple);
+                String message = (String) extras.get("deafult");
+                sendNotification(message);
+//                JSONObject tuple = null;
+//                try {
+//                    tuple = new JSONObject(extras.getString("default"));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+
             }
         }
     }
@@ -61,7 +63,7 @@ public class AgentIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("GCM Notification")
+                        .setContentTitle("命令が届いてます！")
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                         .setContentText(message);
 

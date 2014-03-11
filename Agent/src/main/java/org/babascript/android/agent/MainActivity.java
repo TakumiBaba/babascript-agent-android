@@ -18,8 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewFragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,6 +36,7 @@ import org.babascript.android.agent.views.IntFragment;
 import org.babascript.android.agent.views.ListFragment;
 import org.babascript.android.agent.views.LoginView;
 import org.babascript.android.agent.views.StringFragment;
+import org.babascript.android.agent.views.WebviewFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,31 +52,54 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
     public Boolean isLogined = false;
     private AgentApplication application;
     private WebView webView;
+    private WebviewFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.container, new PlaceholderFragment())
+//                    .commit();
+//        }
 
         mContext = getApplicationContext();
         application = (AgentApplication)getApplication();
         application.setActivity(this);
         application.login();
 //        EventBus.getDefault().register(this);
-
-        if(isLogined == false){
+//Viewが2重になってる？
+        if(!application.isLogin){
             setLoginView();
+        }else{
+            if(!application.isRunning) return;
+            application.isRunning = true;
+            String name = getSharedPreferences("babascript", Activity.MODE_PRIVATE).getString("id", "");
+            fragment = WebviewFragment.newInstance(name);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commit();
+//            fragment.setRetainInstance(true);
         }
-        webView = (WebView)findViewById(R.id.webView);
-        webView.getSettings().setJavaScriptEnabled(true);
-        
+    }
 
+    private void startWebView(String name){
+        webView.loadUrl("http://133.27.246.111:8000/client/a_b/index");
+    }
+
+    @Override
+    public void onResume(){
+        application.isForeground = true;
+        super.onResume();
+    }
+
+    @Override
+    public void onPause(){
+        application.isForeground = false;
+        super.onPause();
     }
 
     public void onEvent(JSONObject object){
@@ -116,9 +142,11 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
                 .commit();
     }
 
-    public void setNormalView(){
+    public void setNormalView(String name){
+        WebviewFragment fragment = WebviewFragment.newInstance(name);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, new PlaceholderFragment())
+                .replace(R.id.container, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }
 
